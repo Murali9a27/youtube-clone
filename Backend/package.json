@@ -3,13 +3,21 @@
   "version": "1.0.0",
   "description": "Creating a backend clone for you-tube.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon src/index.js"
   },
   "keywords": [
     "you-tube",
     "MERN"
   ],
   "author": "Murali Pradhan",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2"
+  }
 }
