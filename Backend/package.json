@@ -1,0 +1,15 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Creating a backend clone for you-tube.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "you-tube",
+    "MERN"
+  ],
+  "author": "Murali Pradhan",
+  "license": "ISC"
+}
