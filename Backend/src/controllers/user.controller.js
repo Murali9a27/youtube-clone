@@ -3,61 +3,41 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import fs from 'fs';
+import { use } from "react";
 
+
+const generateAccessAndRefreshTokens = async(userId) => {
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
+
+        user.refreshToken = refreshToken;
+
+        await user.save({ validateBeforeSave: false });
+
+        return { accessToken, refreshToken };
+    } catch (error) {
+        throw new ApiError(500, "something went wromg while generating access and refresh token")
+    }
+}
 
 const registerUser = asyncHandler(async (req, res) => {
 
     const { fullname, email, username, password } = req.body;
 
     // ----------- FULLNAME VALIDATION -----------
-    if (!fullname || fullname.trim() === "") {
-        throw new ApiError(400, "Fullname is required");
+    if (
+        [fullname, email, username, password].some((field) => field?.trim() === "")
+    ) {
+        throw new ApiError(400, "All fields are required")
     }
-    if (fullname.length < 3) {
-        throw new ApiError(400, "Fullname must be at least 3 characters");
-    }
-    // Allow only alphabets & spaces
-    if (!/^[A-Za-z\s]+$/.test(fullname)) {
-        throw new ApiError(400, "Fullname can contain only letters and spaces");
-    }
-
-    // ----------- EMAIL VALIDATION -----------
-    if (!email || email.trim() === "") {
-        throw new ApiError(400, "Email is required");
-    }
-    // Basic email regex (no external package)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        throw new ApiError(400, "Invalid email format");
-    }
-
-    // ----------- USERNAME VALIDATION -----------
-    if (!username || username.trim() === "") {
-        throw new ApiError(400, "Username is required");
-    }
-    if (username.length < 4) {
-        throw new ApiError(400, "Username must be at least 4 characters");
-    }
-    if (!/^[A-Za-z0-9_]+$/.test(username)) {
-        throw new ApiError(400, "Username can contain only letters, numbers and underscore");
-    }
-
-    // ----------- PASSWORD VALIDATION -----------
-    if (!password || password.trim() === "") {
-        throw new ApiError(400, "Password is required");
-    }
-    if (password.length < 6) {
-        throw new ApiError(400, "Password must be at least 6 characters");
-    }
-
-    // At least 1 uppercase, 1 lowercase, 1 number
-    const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-    if (!strongPassword.test(password)) {
-        throw new ApiError(400, 
-            "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-        );
-    }
-
     // ------------------------------
     // (Next steps as per your logic)
     // ------------------------------
@@ -70,7 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // create user in DB...
     // hide password & token...
 
-    const userExist = User.findOne({
+    const userExist = await User.findOne({
         // check whether any one exist (usernamre or email)
         $or: [{username}, {email}] 
     })
@@ -80,15 +60,27 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
 
+console.log("FILES RECEIVED:", req.files);
     if (!avatarLocalPath){
         throw new ApiError(400, "Avatar is required")
     }
 
+    console.log("Files:", req.files);
+console.log("Avatar Path:", avatarLocalPath);
+console.log("File Exists:", fs.existsSync(avatarLocalPath));
+    
+
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
+    
+
+    console.log(avatar);
     if (!avatar){
         throw new ApiError(400, "Avatar is required")
     }
@@ -96,7 +88,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const user = await User.create({
         fullname,
         avatar: avatar.url,
-        coverImage: coverImage?.url || '',
+        coverImage: coverImage?.url || "",
         email,
         password,
         username: username.toLowerCase()
@@ -116,4 +108,49 @@ const registerUser = asyncHandler(async (req, res) => {
     
 });
 
+const loginUser = asyncHandler(async (req, res) =>{
+    const {username, email, password} = req.body;
+    if(!username || !email){
+        throw new ApiError(400, "Username or Email Missing");
+    }
+
+    const user = await User.findOne({
+        $or:[{email}, {username}]
+    })
+
+    if(!user){
+        throw new ApiError(401, "Username or Email Doesn't exist");
+    }
+
+    const isValidPassword = await user.isPasswordCorrect(password);
+
+    if(!isValidPassword){
+        throw new ApiError(401, "Password is incorrect");
+    }
+
+    const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
+
+    const loggedInUser = await user.findById(user._id).select("-password -refreshToken")
+
+    const options = {
+        httpOnly: true,
+        // secure: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict"
+    }
+
+    return res.status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+        new ApiResponse(
+            200,
+            {
+                user: loggedInUser, accessToken, refreshToken
+            },
+            "User Logged in Succesfully"
+        )
+    )
+
+})
 export { registerUser };
