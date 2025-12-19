@@ -4,7 +4,6 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import fs from 'fs';
-import { use } from "react";
 
 
 const generateAccessAndRefreshTokens = async(userId) => {
@@ -14,7 +13,6 @@ const generateAccessAndRefreshTokens = async(userId) => {
         if (!user) {
             throw new ApiError(404, "User not found");
         }
-
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
 
@@ -24,7 +22,7 @@ const generateAccessAndRefreshTokens = async(userId) => {
 
         return { accessToken, refreshToken };
     } catch (error) {
-        throw new ApiError(500, "something went wromg while generating access and refresh token")
+        throw new ApiError(500, "something went wrong while generating access and refresh token")
     }
 }
 
@@ -110,7 +108,7 @@ console.log("File Exists:", fs.existsSync(avatarLocalPath));
 
 const loginUser = asyncHandler(async (req, res) =>{
     const {username, email, password} = req.body;
-    if(!username || !email){
+    if(!username && !email){
         throw new ApiError(400, "Username or Email Missing");
     }
 
@@ -130,7 +128,7 @@ const loginUser = asyncHandler(async (req, res) =>{
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
 
-    const loggedInUser = await user.findById(user._id).select("-password -refreshToken")
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
     const options = {
         httpOnly: true,
@@ -155,7 +153,7 @@ const loginUser = asyncHandler(async (req, res) =>{
 })
 
 const logoutUser = asyncHandler(async (req, res) =>{
-    User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
         req.user._id,
         {
             $set:{
