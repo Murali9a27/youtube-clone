@@ -51,16 +51,20 @@ const userSchema = new Schema(
     }
 )
 
+// Pre-save hook to ensure the password is hashed before saving to the database
 userSchema.pre("save", async function(next){
     if (!this.isModified("password"))return next()
     this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
+
+// Function to verify if the provided password matches the stored hash
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 
+// Function to generate a JWT access token
 userSchema.methods.generateAccessToken = function (){
     return jwt.sign(
         {
@@ -76,10 +80,10 @@ userSchema.methods.generateAccessToken = function (){
     )
 }
 
+// Function to generate a JWT refresh token
 userSchema.methods.generateRefreshToken = function (){
     return jwt.sign(
         {
-            
             _id:this._id,
         },
         process.env.REFRESH_TOKEN_SECRET,{
