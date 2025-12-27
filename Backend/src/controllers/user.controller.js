@@ -255,7 +255,7 @@ const getCurrentUser = asyncHandler((req,res)=>{
 
 const updateUserDetails = asyncHandler(async(res, res)=>{
     const {fullname, email} = req.body
-    const user = User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user._id,
         {
             fullname: fullname,
@@ -266,5 +266,17 @@ const updateUserDetails = asyncHandler(async(res, res)=>{
             runValidators: true
         }
     )
+
+    if(!user){
+        throw new ApiError(401, "User not found")
+    }
 })
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeUserPassword, getCurrentUser };
+export { 
+    registerUser, 
+    loginUser, 
+    logoutUser, 
+    refreshAccessToken, 
+    changeUserPassword, 
+    getCurrentUser, 
+    updateUserDetails 
+};
