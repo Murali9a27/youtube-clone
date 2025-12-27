@@ -252,4 +252,19 @@ const getCurrentUser = asyncHandler((req,res)=>{
     .status(200)
     .json(new ApiResponse(200, req.user, "current user fetched"))
 })
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeUserPassword };
+
+const updateUserDetails = asyncHandler(async(res, res)=>{
+    const {fullname, email} = req.body
+    const user = User.findByIdAndUpdate(
+        req.user._id,
+        {
+            fullname: fullname,
+            email: email
+        },
+        {
+            new: true,
+            runValidators: true
+        }
+    )
+})
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeUserPassword, getCurrentUser };
