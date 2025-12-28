@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshTokens = async(userId) => {
     try {
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).select("+refreshToken");;
 
         if (!user) {
             throw new ApiError(404, "User not found");
@@ -129,7 +129,7 @@ const loginUser = asyncHandler(async (req, res) =>{
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
 
-    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+    const loggedInUser = await User.findById(user._id).select("-password")
 
     const options = {
         httpOnly: true,
@@ -145,7 +145,7 @@ const loginUser = asyncHandler(async (req, res) =>{
         new ApiResponse(
             200,
             {
-                user: loggedInUser, accessToken, refreshToken
+                user: loggedInUser
             },
             "User Logged in Succesfully"
         )
@@ -195,13 +195,13 @@ const refreshAccessToken = asyncHandler(async (req,res)=>{
         throw new ApiError(401, "Unauthorised Access")
     }
 
-    const user = await User.findById(decodeToken?._id)
+    const user = await User.findById(decodeToken?._id).select("+refreshToken");
 
     if (!user) {
         throw new ApiError(401, "Invalid refresh token") 
     }
 
-    if (incomingRefreshToken !== user?.refreshAccessToken) {
+    if (incomingRefreshToken !== user?.refreshToken) {
         throw new ApiError(401, "Refresh token is expired or used")
     }
 
@@ -212,15 +212,15 @@ const refreshAccessToken = asyncHandler(async (req,res)=>{
         sameSite: "strict"
     }
 
-    const {accessToken, newrefreshToken}= await generateAccessAndRefreshTokens(user._id)
-
+    const {accessToken, refreshToken}= await generateAccessAndRefreshTokens(user._id)
+    console.log(refreshToken);
     return res
     .status(200)
     .cookie("accessToken",accessToken, options)
-    .cookie("refreshToken",newrefreshToken, options)
+    .cookie("refreshToken",refreshToken, options)
     .json(new ApiResponse(
         200, 
-        {accessToken, refreshToken: newrefreshToken},
+        {accessToken, refreshToken: refreshToken},
         "Accesstoken refrehed succesfully"
     ))
 })
@@ -253,24 +253,99 @@ const getCurrentUser = asyncHandler((req,res)=>{
     .json(new ApiResponse(200, req.user, "current user fetched"))
 })
 
-const updateUserDetails = asyncHandler(async(res, res)=>{
+const updateUserDetails = asyncHandler(async(req, res)=>{
     const {fullname, email} = req.body
     const user = await User.findByIdAndUpdate(
-        req.user._id,
+        req.user?._id,
         {
-            fullname: fullname,
-            email: email
+            $set:{
+                fullname: fullname,
+                email: email
+            }
         },
         {
             new: true,
             runValidators: true
         }
-    )
+    ).select("-password")
 
     if(!user){
-        throw new ApiError(401, "User not found")
+        throw new ApiError(404, "User not found")
     }
+
+    return res.status(200)
+    .json(new ApiResponse(200, user, "User details updated successfully"))
 })
+
+
+const updateUserAvatar = await asyncHandler(async(req, res)=>{
+    const avatarLocalPath = req.files?.path;
+
+    if(!avatarLocalPath){
+        throw new ApiError(401, "Avatar is Missing")
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    if(!avatar.url){
+        throw new ApiError(401, "Error on Uploading Avatar")
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            set:{
+               avatar: avatar.url 
+            }
+        },
+        {
+            new:true,
+        }
+    ).select("-password")
+
+    if(!user){
+        throw new ApiError(404, "User not found")
+    }
+
+    return res.status(200)
+    .json(new ApiResponse(200, user, "Avatar updated successfully"))
+})
+
+
+const updateUserCoverImage = await asyncHandler(async(req, res)=>{
+    const coverImageLocalPath = req.files?.path;
+
+    if(!coverImageLocalPath){
+        throw new ApiError(401, "Avatar is Missing")
+    }
+
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+    if(!coverImage.url){
+        throw new ApiError(401, "Error on Uploading Avatar")
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            set:{
+               coverImage: coverImage.url 
+            }
+        },
+        {
+            new:true,
+        }
+    ).select("-password")
+
+    if(!user){
+        throw new ApiError(404, "User not found")
+    }
+
+    return res.status(200)
+    .json(new ApiResponse(200, user, "Cover Image updated successfully"))
+})
+
+
 export { 
     registerUser, 
     loginUser, 
@@ -278,5 +353,7 @@ export {
     refreshAccessToken, 
     changeUserPassword, 
     getCurrentUser, 
-    updateUserDetails 
+    updateUserDetails,
+    updateUserAvatar,
+    updateUserCoverImage
 };
