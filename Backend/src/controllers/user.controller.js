@@ -234,7 +234,7 @@ const changeUserPassword = asyncHandler(async (req, res)=>{
         throw new ApiError(401, "User Not Found");
     }
 
-    const isValidPassword = user.isPasswordCorrect(oldPassword);
+    const isValidPassword = await user.isPasswordCorrect(oldPassword);
     if (!isValidPassword) {
         throw new ApiError(400, "Wrong Password");
     }
