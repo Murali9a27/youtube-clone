@@ -1,4 +1,3 @@
-import { type } from "jquery";
 import mongoose,{Schema, Types} from "mongoose";
 
 const subscriptionSchema = new Schema({

@@ -5,6 +5,8 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import fs from 'fs';
 import jwt from "jsonwebtoken";
+import { match } from "assert";
+import { lookup } from "dns";
 
 
 const generateAccessAndRefreshTokens = async(userId) => {
@@ -343,6 +345,68 @@ const updateUserCoverImage = await asyncHandler(async(req, res)=>{
 
     return res.status(200)
     .json(new ApiResponse(200, user, "Cover Image updated successfully"))
+})
+
+const getUserChannelProfile = await asyncHandler(async (req,res)=>{
+    const {username} = req.params;
+
+    if (!username?.trim()) {
+        throw new ApiError(400, "username is missing")
+    }
+
+    const channel = await User.arguments([
+        {
+            $match:{
+                username: username?.toLowerCase
+            }
+        },
+        {
+            $lookup:{
+                from: "users",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            }
+        },
+        {
+            $lookup:{
+                from: "users",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribeTo"
+            }
+        },
+        {
+            $addFields:{
+                subscriberCount:{
+                    $size: "$subscribers"
+                },
+                channelSubscribeToCount:{
+                    $size: "$subscribeTo"
+                },
+                isSubscribed:{
+                    $cond:{
+                        $if:{$in:[req.user?._id, $subscribers.subscriber]},
+                        $then: true,
+                        $else: false
+                    }
+                }
+            }
+        },
+        {
+            $project:{
+                fullname:1,
+                username:1,
+                email:1,
+                avatar:1,
+                coverImage:1,
+                subscriberCount:1,
+                channelSubscribeToCount:1,
+                isSubscribed:1
+
+            }
+        }
+    ])
 })
 
 
