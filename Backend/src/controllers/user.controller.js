@@ -407,6 +407,19 @@ const getUserChannelProfile = await asyncHandler(async (req,res)=>{
             }
         }
     ])
+
+    if(!channel?.length){
+        throw new ApiError(400, "Channel Doesn't exist")
+    }
+
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            channel[0],
+            "User Channel Picked succesfully"
+            
+        )
+    )
 })
 
 
