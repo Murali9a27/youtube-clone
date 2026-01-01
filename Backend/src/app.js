@@ -17,11 +17,15 @@ app.use(cookieParser())
 
 //routes
 
-import userRouter from './routes/user.routes.js'
+import userRoutes from './routes/user.routes.js';
+import playlistsRoutes from './routes/playlist.routes.js';
+import watchHistoryRoutes from "./routes/watchHistory.routes.js";
+
 
 
 //routes decleration
 
-app.use("/users", userRouter)
-
+app.use("/users", userRoutes)
+app.use("/history", watchHistoryRoutes);
+app.use("/playlists", playlistsRoutes);
 export {app} 
