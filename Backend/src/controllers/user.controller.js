@@ -246,11 +246,13 @@ const changeUserPassword = asyncHandler(async (req, res)=>{
     }
 
     user.password = newPassword;
+    // invalidate all sessions
+    user.refreshTokens = [];
     await user.save({validateBeforeSave: false});
 
     return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Password is changed succesfully"))
+    .json(new ApiResponse(200, {}, "Password changed. Please login again."))
 })
 
 const getCurrentUser = asyncHandler((req,res)=>{
@@ -261,6 +263,10 @@ const getCurrentUser = asyncHandler((req,res)=>{
 
 const updateUserDetails = asyncHandler(async(req, res)=>{
     const {fullname, email} = req.body
+
+    if (!fullname && !email) {
+        throw new ApiError(400, "Nothing to update");
+    }
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
@@ -284,7 +290,7 @@ const updateUserDetails = asyncHandler(async(req, res)=>{
 })
 
 
-const updateUserAvatar = await asyncHandler(async(req, res)=>{
+const updateUserAvatar = asyncHandler(async(req, res)=>{
     const avatarLocalPath = req.files?.path;
 
     if(!avatarLocalPath){
@@ -300,7 +306,7 @@ const updateUserAvatar = await asyncHandler(async(req, res)=>{
     const user = await User.findByIdAndUpdate(
         req.user._id,
         {
-            set:{
+            $set:{
                avatar: avatar.url 
             }
         },
