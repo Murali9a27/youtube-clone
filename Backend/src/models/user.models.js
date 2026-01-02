@@ -32,20 +32,27 @@ const userSchema = new Schema(
         coverImage: {
             type: String,
         },
-        watchHistory:[
-            {
-                type: Schema.Types.ObjectId,
-                ref: "Video"
-            }
-        ],
+        
         password:{
             type: String,
             required: [true, 'Password is required']
         },
-        refreshToken:{
-            type: String,
-            select: false
-        }
+        refreshTokens: [
+            {
+                token: {
+                type: String,
+                required: true
+                },
+                device: {
+                type: String // browser / device info
+                },
+                createdAt: {
+                type: Date,
+                default: Date.now
+                }
+            }
+        ]
+
     },
     {
         timestamps: true
