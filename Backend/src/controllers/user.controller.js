@@ -51,10 +51,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (userExist) {
-    throw new ApiError(
-      409,
-      "User with this email or username already exists"
-    );
+    throw new ApiError(409, "User already exists");
   }
 
   const avatarLocalPath = req.files?.avatar?.[0]?.path;
@@ -64,35 +61,51 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar is required");
   }
 
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  // upload to Cloudinary
+  const avatar = await uploadOnCloudinary(avatarLocalPath, "avatars");
   const coverImage = coverImageLocalPath
-    ? await uploadOnCloudinary(coverImageLocalPath)
+    ? await uploadOnCloudinary(coverImageLocalPath, "covers")
     : null;
 
   if (!avatar?.url) {
     throw new ApiError(400, "Avatar upload failed");
   }
 
-  const user = await User.create({
-    fullname,
-    avatar: avatar.url,
-    coverImage: coverImage?.url || "",
-    email,
-    password,
-    username: username.toLowerCase()
-  });
+  let user;
+  try {
+    user = await User.create({
+      fullname,
+      email,
+      password,
+      username: username.toLowerCase(),
+      avatar: {
+        url: avatar.url,
+        public_id: avatar.public_id
+      },
+      coverImage: coverImage
+        ? {
+            url: coverImage.url,
+            public_id: coverImage.public_id
+          }
+        : undefined
+    });
+  } catch (error) {
+    // rollback cloudinary uploads if DB fails
+    await deleteFromCloudinary(avatar.public_id);
+    if (coverImage?.public_id) {
+      await deleteFromCloudinary(coverImage.public_id);
+    }
+    throw error;
+  }
 
   const createdUser = await User.findById(user._id)
     .select("-password -refreshTokens");
-
-  if (!createdUser) {
-    throw new ApiError(500, "User registration failed");
-  }
 
   return res.status(201).json(
     new ApiResponse(201, createdUser, "User registered successfully")
   );
 });
+
 
 
 const loginUser = asyncHandler(async (req, res) =>{
