@@ -2,10 +2,12 @@ import { Router } from "express";
 import {changeUserPassword, getCurrentUser, getUserChannelProfile, loginUser, logoutUser, refreshAccessToken, registerUser, updateUserAvatar, updateUserCoverImage, updateUserDetails} from '../controllers/user.controller.js'
 import {upload} from '../middlewares/multer.middleware.js'
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { redisAuthLimiter } from "../middlewares/authRateLimit.middleware.js";
 
 const router = Router();
 
 router.route('/register').post(
+    redisAuthLimiter,
     upload.fields([
         {
             name: "avatar",
@@ -15,15 +17,15 @@ router.route('/register').post(
             name: "coverImage",
             maxCount: 1
         }
-    ]),
+    ]),    
     registerUser
 );
 
-router.route('/login').post(loginUser);
+router.route('/login').post(redisAuthLimiter, loginUser);
 
 // secured Routes
 router.route('/logout').post(verifyJWT, logoutUser)
-router.route('/refresh-token').post(refreshAccessToken)
+router.route('/refresh-token').post( refreshAccessToken)
 router.route('/change-password').patch(verifyJWT, changeUserPassword)
 router.route('/current-user').get(verifyJWT, getCurrentUser)
 router.route('/update-account').patch(verifyJWT, updateUserDetails)

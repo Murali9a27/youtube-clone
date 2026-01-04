@@ -1,6 +1,12 @@
 import express from "express";
 import cors from "cors"
 import cookieParser from "cookie-parser";
+import "./db/redis.js";
+import { redisGeneralLimiter } from "./middlewares/rateLimit.middleware.js";
+
+app.use(redisGeneralLimiter);
+
+
 
 const app = express();
 
