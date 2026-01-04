@@ -20,6 +20,7 @@ app.use(cookieParser())
 import userRoutes from './routes/user.routes.js';
 import playlistsRoutes from './routes/playlist.routes.js';
 import watchHistoryRoutes from "./routes/watchHistory.routes.js";
+import errorHandler from "./middlewares/error.middleware.js";
 
 
 
@@ -28,4 +29,7 @@ import watchHistoryRoutes from "./routes/watchHistory.routes.js";
 app.use("/users", userRoutes)
 app.use("/history", watchHistoryRoutes);
 app.use("/playlists", playlistsRoutes);
+
+
+app.use(errorHandler)
 export {app} 
