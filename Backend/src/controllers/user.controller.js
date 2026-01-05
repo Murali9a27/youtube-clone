@@ -5,8 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import fs from 'fs';
 import jwt from "jsonwebtoken";
-import { match } from "assert";
-import { lookup } from "dns";
+import { logAuditEvent } from "../utils/auditLogger.js";
 
 
 const generateAccessAndRefreshTokens = async(userId, req) => {
@@ -89,6 +88,13 @@ const registerUser = asyncHandler(async (req, res) => {
           }
         : undefined
     });
+
+    await logAuditEvent({
+      userId: user._id,
+      action: "REGISTER",
+      req
+    });
+
   } catch (error) {
     // rollback cloudinary uploads if DB fails
     await deleteFromCloudinary(avatar.public_id);
@@ -133,6 +139,14 @@ const loginUser = asyncHandler(async (req, res) =>{
     const loggedInUser = await User.findById(user._id)
     .select("-password -refreshTokens");
 
+
+    // Audit Entry
+    await logAuditEvent({
+      userId: user._id,
+      action: "LOGIN",
+      req
+    });
+
     const options = {
         httpOnly: true,
         // secure: true,
@@ -165,6 +179,13 @@ const logoutUser = asyncHandler(async (req, res) => {
       }
     });
   }
+
+  // Audit Entry
+  await logAuditEvent({
+    userId: req.user._id,
+    action: "LOGOUT",
+    req
+  });
 
   const options = {
     httpOnly: true,
@@ -262,6 +283,13 @@ const changeUserPassword = asyncHandler(async (req, res)=>{
     // invalidate all sessions
     user.refreshTokens = [];
     await user.save({validateBeforeSave: false});
+
+    await logAuditEvent({
+      userId: req.user._id,
+      action: "PASSWORD_CHANGE",
+      req
+    });
+
 
     return res
     .status(200)
@@ -471,6 +499,13 @@ const logoutFromAllDevices = asyncHandler(async (req, res) => {
     },
     { new: true }
   );
+
+  // Audit Entry
+  await logAuditEvent({
+    userId: req.user._id,
+    action: "LOGOUT_ALL",
+    req
+  });
 
   const options = {
     httpOnly: true,
