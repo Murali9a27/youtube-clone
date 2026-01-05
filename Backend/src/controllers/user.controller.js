@@ -345,7 +345,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 });
 
 
-
 const updateUserCoverImage = asyncHandler(async (req, res) => {
   const coverImageLocalPath = req.file?.path;
 
@@ -464,6 +463,35 @@ const getUserChannelProfile = asyncHandler(async (req,res)=>{
 })
 
 
+const logoutFromAllDevices = asyncHandler(async (req, res) => {
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: { refreshTokens: [] }
+    },
+    { new: true }
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict"
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "Logged out from all devices successfully"
+      )
+    );
+});
+
+
 
 
 export { 
@@ -476,5 +504,6 @@ export {
     updateUserDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getUserChannelProfile
+    getUserChannelProfile,
+    logoutFromAllDevices
 };

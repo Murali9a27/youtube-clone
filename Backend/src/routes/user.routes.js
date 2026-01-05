@@ -1,5 +1,17 @@
 import { Router } from "express";
-import {changeUserPassword, getCurrentUser, getUserChannelProfile, loginUser, logoutUser, refreshAccessToken, registerUser, updateUserAvatar, updateUserCoverImage, updateUserDetails} from '../controllers/user.controller.js'
+import {
+    changeUserPassword, 
+    getCurrentUser, 
+    getUserChannelProfile,
+    loginUser, 
+    logoutUser,
+    logoutFromAllDevices, 
+    refreshAccessToken,
+    registerUser, 
+    updateUserAvatar, 
+    updateUserCoverImage, 
+    updateUserDetails
+} from '../controllers/user.controller.js'
 import {upload} from '../middlewares/multer.middleware.js'
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { redisAuthLimiter } from "../middlewares/authRateLimit.middleware.js";
@@ -25,6 +37,8 @@ router.route('/login').post(redisAuthLimiter, loginUser);
 
 // secured Routes
 router.route('/logout').post(verifyJWT, logoutUser)
+router.route("/logout-all").post( verifyJWT,logoutFromAllDevices);
+
 router.route('/refresh-token').post( refreshAccessToken)
 router.route('/change-password').patch(verifyJWT, changeUserPassword)
 router.route('/current-user').get(verifyJWT, getCurrentUser)
