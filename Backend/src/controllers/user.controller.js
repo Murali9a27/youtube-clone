@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import fs from 'fs';
+import { createSecurityAlert } from "../utils/securityAlert.js";
 import jwt from "jsonwebtoken";
 import { logAuditEvent } from "../utils/auditLogger.js";
 
@@ -131,7 +131,12 @@ const loginUser = asyncHandler(async (req, res) =>{
     const isValidPassword = await user.isPasswordCorrect(password);
 
     if(!isValidPassword){
-        throw new ApiError(401, "Invalid credentials");
+      await createSecurityAlert({
+        userId: user._id,
+        type: "LOGIN_FAILED",
+        req
+      });
+      throw new ApiError(401, "Invalid credentials");
     }
 
     const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id, req)
@@ -145,6 +150,16 @@ const loginUser = asyncHandler(async (req, res) =>{
       userId: user._id,
       action: "LOGIN",
       req
+    });
+
+    // Security Alert → security monitoring
+    await createSecurityAlert({
+      userId: user._id,
+      type: "LOGIN",
+      req,
+      meta: {
+        device: req.headers["user-agent"]
+      }
     });
 
     const options = {
