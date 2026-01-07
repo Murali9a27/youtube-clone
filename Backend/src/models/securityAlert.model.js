@@ -18,6 +18,7 @@ const securityAlertSchema = new Schema(
         "LOGOUT_ALL",
         "REFRESH_TOKEN",
         "SESSION_EXPIRED",
+        "PROFILE UPDATED",
         "PASSWORD_CHANGE",
         "PASSWORD_RESET_REQUEST",
         "PASSWORD_RESET_SUCCESS",

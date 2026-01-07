@@ -299,6 +299,16 @@ const changeUserPassword = asyncHandler(async (req, res)=>{
     user.refreshTokens = [];
     await user.save({validateBeforeSave: false});
 
+    // Security Alert → security monitoring
+    await createSecurityAlert({
+      userId: user._id,
+      type: "PASSWORD_CHANGE",
+      req,
+      meta: {
+        device: req.headers["user-agent"]
+      }
+    });
+
     await logAuditEvent({
       userId: req.user._id,
       action: "PASSWORD_CHANGE",
@@ -341,6 +351,17 @@ const updateUserDetails = asyncHandler(async(req, res)=>{
         throw new ApiError(404, "User not found")
     }
 
+    // Security Alert → security monitoring
+    await createSecurityAlert({
+      userId: user._id,
+      type: "PROFILE UPDATED",
+      req,
+      meta: {
+        device: req.headers["user-agent"]
+      }
+    });
+
+
     return res.status(200)
     .json(new ApiResponse(200, user, "User details updated successfully"))
 })
@@ -381,6 +402,15 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     },
     { new: true }
   ).select("-password");
+
+  await createSecurityAlert({
+    userId: user._id,
+    type: "PROFILE UPDATED",
+    req,
+    meta: {
+      device: req.headers["user-agent"]
+    }
+  });
 
   return res
     .status(200)
@@ -423,6 +453,15 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     },
     { new: true }
   ).select("-password");
+
+  await createSecurityAlert({
+    userId: user._id,
+    type: "PROFILE UPDATED",
+    req,
+    meta: {
+      device: req.headers["user-agent"]
+    }
+  });
 
   return res
     .status(200)
@@ -514,6 +553,15 @@ const logoutFromAllDevices = asyncHandler(async (req, res) => {
     },
     { new: true }
   );
+
+  await createSecurityAlert({
+    userId: user._id,
+    type: "LOGOUT_ALL",
+    req,
+    meta: {
+      device: req.headers["user-agent"]
+    }
+  });
 
   // Audit Entry
   await logAuditEvent({
