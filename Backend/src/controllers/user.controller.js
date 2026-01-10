@@ -501,32 +501,31 @@ const getUserChannelProfile = asyncHandler(async (req,res)=>{
         {
             $addFields:{
                 subscriberCount:{
-                    $size: "$subscribers"
+                  $size: "$subscribers"
                 },
                 channelSubscribeToCount:{
-                    $size: "$subscribeTo"
+                  $size: "$subscribeTo"
                 },
                 isSubscribed:{
-                    $cond:{
-                        $if:{$in:[req.user?._id, $subscribers.subscriber]},
-                        $then: true,
-                        $else: false
-                    }
+                  $cond:{
+                    $if:{$in:[req.user?._id, $subscribers.subscriber]},
+                    $then: true,
+                    $else: false
+                  }
                 }
             }
         },
         {
-            $project:{
-                fullname:1,
-                username:1,
-                email:1,
-                avatar:1,
-                coverImage:1,
-                subscriberCount:1,
-                channelSubscribeToCount:1,
-                isSubscribed:1
-
-            }
+          $project:{
+            fullname:1,
+            username:1,
+            email:1,
+            avatar:1,
+            coverImage:1,
+            subscriberCount:1,
+            channelSubscribeToCount:1,
+            isSubscribed:1
+          }
         }
     ])
 
@@ -593,15 +592,15 @@ const logoutFromAllDevices = asyncHandler(async (req, res) => {
 
 
 export { 
-    registerUser, 
-    loginUser, 
-    logoutUser, 
-    refreshAccessToken, 
-    changeUserPassword, 
-    getCurrentUser, 
-    updateUserDetails,
-    updateUserAvatar,
-    updateUserCoverImage,
-    getUserChannelProfile,
-    logoutFromAllDevices
+  registerUser, 
+  loginUser, 
+  logoutUser, 
+  refreshAccessToken, 
+  changeUserPassword, 
+  getCurrentUser, 
+  updateUserDetails,
+  updateUserAvatar,
+  updateUserCoverImage,
+  getUserChannelProfile,
+  logoutFromAllDevices
 };
