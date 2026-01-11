@@ -5,7 +5,7 @@ const Navbar = () => {
       {/* LEFT: Menu + Logo */}
       <div className="flex items-center gap-4">
         <button className="p-2 rounded-full hover:bg-gray-800">
-          ☰
+          &#9776;
         </button>
         <h1 className="text-xl font-bold text-white">
           YouTube
