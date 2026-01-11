@@ -1,5 +1,5 @@
 import multer from "multer";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/ApiError.js";
 
 const errorHandler = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {

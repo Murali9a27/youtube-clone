@@ -1,4 +1,4 @@
-import { AuditLog } from "../models/auditLog.model.js";
+import { AuditLog } from "../models/auditLogs.model.js";
 
 export const logAuditEvent = async ({
   userId,

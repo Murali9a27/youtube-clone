@@ -1,7 +1,7 @@
-import { Playlist } from "../models/playlist.model";
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
+import { Playlist } from "../models/playlist.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
 const createPlaylist = asyncHandler(async (req, res)=>{
     const { name, description, visibility } = req.body;

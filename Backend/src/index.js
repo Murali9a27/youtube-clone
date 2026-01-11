@@ -1,6 +1,15 @@
 import dotenv from "dotenv";
 import connectDB from "./db/db.js";
 import { app } from "./app.js";
+import cors from "cors";
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 dotenv.config({
   path: './.env'
 })

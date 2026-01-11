@@ -1,28 +1,37 @@
 import { useState } from "react";
+import { loginUser } from "../../api/auth.api";
 
 const Login = () => {
-  // 1️⃣ State to store form data
   const [formData, setFormData] = useState({
     identifier: "",
     password: ""
   });
 
-  // 2️⃣ Handle input change
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
   };
 
-  // 3️⃣ Handle form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    console.log("Login data:", formData);
-    // later → send this to backend
+    try {
+      const res = await loginUser(formData);
+      console.log("Login success:", res.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,10 +42,8 @@ const Login = () => {
           Sign in
         </h2>
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit}>
-          
-          {/* Username or Email */}
+
           <input
             type="text"
             name="identifier"
@@ -46,7 +53,6 @@ const Login = () => {
             className="w-full mb-4 px-4 py-2 bg-black border border-gray-700 rounded-md text-white focus:outline-none focus:border-blue-500"
           />
 
-          {/* Password */}
           <input
             type="password"
             name="password"
@@ -56,13 +62,20 @@ const Login = () => {
             className="w-full mb-6 px-4 py-2 bg-black border border-gray-700 rounded-md text-white focus:outline-none focus:border-blue-500"
           />
 
-          {/* Button */}
           <button
             type="submit"
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium transition"
+            disabled={loading}
+            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium transition disabled:opacity-50"
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
+
+          {/* ✅ Error message */}
+          {error && (
+            <p className="text-sm text-red-500 mt-4 text-center">
+              {error}
+            </p>
+          )}
 
         </form>
 
