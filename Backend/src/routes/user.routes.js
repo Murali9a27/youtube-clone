@@ -14,12 +14,11 @@ import {
 } from '../controllers/user.controller.js'
 import {upload} from '../middlewares/multer.middleware.js'
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { redisAuthLimiter } from "../middlewares/authRateLimit.middleware.js";
 
 const router = Router();
 
 router.route('/register').post(
-    redisAuthLimiter,
+    
     upload.fields([
         {
             name: "avatar",
@@ -33,7 +32,7 @@ router.route('/register').post(
     registerUser
 );
 
-router.route('/login').post(redisAuthLimiter, loginUser);
+router.route('/login').post(loginUser);
 
 // secured Routes
 router.route('/logout').post(verifyJWT, logoutUser)

@@ -1,5 +1,7 @@
 import multer from "multer";
 import { ApiError } from "../utils/ApiError.js";
+import mongoose from "mongoose";
+
 
 const errorHandler = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {

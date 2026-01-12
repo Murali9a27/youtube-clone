@@ -3,7 +3,7 @@ import { loginUser } from "../../api/auth.api";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    identifier: "",
+    username: "",
     password: ""
   });
 
@@ -46,7 +46,7 @@ const Login = () => {
 
           <input
             type="text"
-            name="identifier"
+            name="username"
             placeholder="Username or Email"
             value={formData.identifier}
             onChange={handleChange}
