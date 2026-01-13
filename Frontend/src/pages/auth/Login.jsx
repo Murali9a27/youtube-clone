@@ -27,6 +27,7 @@ const Login = () => {
     try {
       const res = await loginUser(formData);
       console.log("Login success:", res.data);
+      navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {
