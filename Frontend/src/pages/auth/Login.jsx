@@ -1,85 +1,68 @@
 import { useState } from "react";
-import { loginUser } from "../../api/auth.api";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: ""
   });
 
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await loginUser(formData);
-      console.log("Login success:", res.data);
-      navigate("/");
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
+    console.log("Login Data:", formData);
+    // API call will go here
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="w-full max-w-md bg-gray-900 p-8 rounded-lg border border-gray-800">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
 
-        <h2 className="text-2xl font-bold text-white text-center mb-6">
-          Sign in
-        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              required
+            />
+          </div>
 
-        <form onSubmit={handleSubmit}>
-
-          <input
-            type="text"
-            name="username"
-            placeholder="Username or Email"
-            value={formData.identifier}
-            onChange={handleChange}
-            className="w-full mb-4 px-4 py-2 bg-black border border-gray-700 rounded-md text-white focus:outline-none focus:border-blue-500"
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full mb-6 px-4 py-2 bg-black border border-gray-700 rounded-md text-white focus:outline-none focus:border-blue-500"
-          />
+          <div>
+            <label className="block text-sm font-medium mb-1">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter password"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              required
+            />
+          </div>
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium transition disabled:opacity-50"
+            className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            Login
           </button>
-
-          {/* ✅ Error message */}
-          {error && (
-            <p className="text-sm text-red-500 mt-4 text-center">
-              {error}
-            </p>
-          )}
-
         </form>
 
+        <p className="text-sm text-center mt-4">
+          Don’t have an account?{" "}
+          <span className="text-red-600 cursor-pointer">Sign up</span>
+        </p>
       </div>
     </div>
   );
