@@ -16,52 +16,66 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Login Data:", formData);
-    // API call will go here
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
+        {/* Title */}
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Welcome Back
+        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter email"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="you@example.com"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg 
+              focus:outline-none focus:border-red-100"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter password"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="••••••••"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+              focus:outline-none focus:ring-2  focus:border-red-500"
               required
             />
           </div>
 
+          {/* Button */}
           <button
             type="submit"
-            className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition"
+            className="w-full bg-red-600 text-white py-2.5 rounded-lg 
+            font-semibold hover:bg-red-700 transition duration-200"
           >
             Login
           </button>
         </form>
 
-        <p className="text-sm text-center mt-4">
+        {/* Footer */}
+        <p className="text-sm text-center text-gray-600 mt-6">
           Don’t have an account?{" "}
-          <span className="text-red-600 cursor-pointer">Sign up</span>
+          <span className="text-red-600 font-medium cursor-pointer hover:underline">
+            Sign up
+          </span>
         </p>
       </div>
     </div>
