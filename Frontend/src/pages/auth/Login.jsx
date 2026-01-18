@@ -1,22 +1,65 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../../api/auth.api";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    email: "",
+    identifier: "", // username OR email
     password: ""
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login Data:", formData);
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  try {
+    const isEmail = formData.identifier.includes("@");
+
+    const payload = {
+      password: formData.password
+    };
+
+    if (isEmail) {
+      payload.email = formData.identifier;
+    } else {
+      payload.username = formData.identifier;
+    }
+
+    const response = await loginUser(payload);
+
+    if (response.data?.data?.accessToken) {
+      localStorage.setItem(
+        "accessToken",
+        response.data.data.accessToken
+      );
+    }
+
+    navigate("/");
+  } catch (err) {
+    console.error(err);
+    setError(
+      err.response?.data?.message || "Invalid credentials"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -30,16 +73,15 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+              Email or Username
             </label>
             <input
-              type="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              name="identifier"
+              value={formData.identifier}
               onChange={handleChange}
-              placeholder="you@example.com"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg 
-              focus:outline-none focus:border-red-300"
+              placeholder="Email or username"
+              className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-400"
               required
             />
           </div>
@@ -54,26 +96,33 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="••••••••"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg 
-              focus:outline-none focus:ring-2  focus:border-red-300"
+              className="w-full text-black px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-400"
               required
             />
           </div>
 
+          {/* Error */}
+          {error && (
+            <p className="text-sm text-red-600 text-center">{error}</p>
+          )}
+
           {/* Button */}
           <button
             type="submit"
-            className="w-full bg-red-600 text-white py-2.5 rounded-lg 
-            font-semibold hover:bg-red-700 transition duration-200"
+            disabled={loading}
+            className="w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition duration-200 disabled:opacity-60"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         {/* Footer */}
         <p className="text-sm text-center text-gray-600 mt-6">
           Don’t have an account?{" "}
-          <span className="text-red-600 font-medium cursor-pointer hover:underline">
+          <span
+            onClick={() => navigate("/register")}
+            className="text-red-600 font-medium cursor-pointer hover:underline"
+          >
             Sign up
           </span>
         </p>

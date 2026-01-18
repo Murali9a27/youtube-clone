@@ -11,9 +11,7 @@ const Home = () => {
           className="w-1/2 px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-red-500"
         />
 
-        <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-          Login
-        </button>
+        
       </header>
 
       {/* Main Content */}
