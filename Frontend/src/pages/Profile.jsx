@@ -1,7 +1,7 @@
 import React from "react";
 
 const Profile = () => {
-  // Temporary dummy data (replace with API data)
+  Temporary dummy data (replace with API data)
   const user = {
     username: "murali_kumar",
     email: "murali@gmail.com",
@@ -52,7 +52,7 @@ const Profile = () => {
               <p className="text-sm font-medium">
                 Sample Video Title
               </p>
-              <p className="text-xs text-gray-400">1.2K views</p>
+              <p className="text-xs text-gray-400">1K views</p>
             </div>
           </div>
         </div>
