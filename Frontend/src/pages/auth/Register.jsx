@@ -157,7 +157,7 @@ const Register = () => {
           type="file"
           name="avatar"
           accept="image/*"
-          className="border border-blue-950 text-amber-300"
+          className="border border-blue-950 text-black"
           onChange={handleFileChange}
         />
         {errors.avatar && <p className="error">{errors.avatar}</p>}
@@ -169,7 +169,8 @@ const Register = () => {
         <input
           type="file"
           name="coverImage"
-          accept="image/*"
+          accept="image/*"          
+          className="border border-blue-950 text-black"
           onChange={handleFileChange}
         />
 
