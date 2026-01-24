@@ -105,7 +105,7 @@ const Register = () => {
         onSubmit={handleSubmit}
         className="bg-white w-full max-w-md p-8 rounded-2xl shadow-lg"
       >
-        <h2 className="text-2xl font-bold text-center mb-6">
+        <h2 className="text-2xl text-red-950 font-bold text-center mb-6">
           Create Account
         </h2>
 
@@ -114,7 +114,7 @@ const Register = () => {
           type="text"
           name="fullname"
           placeholder="Full Name"
-          className="input"
+          className="input text-black border border-blue-950 "
           onChange={handleChange}
         />
         {errors.fullname && <p className="error">{errors.fullname}</p>}
@@ -124,7 +124,7 @@ const Register = () => {
           type="email"
           name="email"
           placeholder="Email"
-          className="input"
+          className="input text-black border border-blue-950"
           onChange={handleChange}
         />
         {errors.email && <p className="error">{errors.email}</p>}
@@ -134,7 +134,7 @@ const Register = () => {
           type="text"
           name="username"
           placeholder="Username"
-          className="input"
+          className="input text-black border border-blue-950"
           onChange={handleChange}
         />
         {errors.username && <p className="error">{errors.username}</p>}
@@ -144,7 +144,7 @@ const Register = () => {
           type="password"
           name="password"
           placeholder="Password"
-          className="input"
+          className="input text-black border border-blue-950"
           onChange={handleChange}
         />
         {errors.password && <p className="error">{errors.password}</p>}
@@ -157,6 +157,7 @@ const Register = () => {
           type="file"
           name="avatar"
           accept="image/*"
+          className="border border-blue-950 text-amber-300"
           onChange={handleFileChange}
         />
         {errors.avatar && <p className="error">{errors.avatar}</p>}

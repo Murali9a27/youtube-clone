@@ -1,8 +1,10 @@
+import Navbar from "../components/Navbar";
+
 const Home = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+      {/* <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-red-600">YouTube Clone</h1>
 
         <input
@@ -12,7 +14,8 @@ const Home = () => {
         />
 
         
-      </header>
+      </header> */}
+      <Navbar />
 
       {/* Main Content */}
       <main className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

@@ -1,7 +1,6 @@
 import React from "react";
 
 const Profile = () => {
-  Temporary dummy data (replace with API data)
   const user = {
     username: "murali_kumar",
     email: "murali@gmail.com",
